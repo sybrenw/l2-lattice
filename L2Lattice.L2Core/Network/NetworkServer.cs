@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
@@ -10,8 +11,11 @@ namespace L2Lattice.L2Core.Network
 {
     public class NetworkServer: IDisposable
     {
+        private static ILogger Logger { get; } = Logging.CreateLogger<NetworkServer>();
+
         private Socket _socket;
 
+        /* Currently connected clients */
         private ConcurrentBag<NetworkClient> _clients = new ConcurrentBag<NetworkClient>();
 
         /* Event Handlers */
@@ -37,38 +41,58 @@ namespace L2Lattice.L2Core.Network
             _socket = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _socket.Bind(endPoint);
             _socket.Listen(1000);
-            
+
+            List<Task> clientTasks = new List<Task>();
+
             while (_running)
             {
                 try
                 {
+                    // Wait for client connection
                     Socket socket = await _socket.AcceptAsync();
-                    NetworkClient client = new NetworkClient(socket);
-                    _clients.Add(client);
-                    ClientConnected.Invoke(this, new ClientEventArgs(client));
-                }
-                catch (SocketException e)
-                {
 
+                    // Create new client and start processing
+                    NetworkClient client = new NetworkClient(socket);
+                    clientTasks.Add(client.ProcessAsync());
+
+                    // Add client to collection
+                    _clients.Add(client);
+
+                    Logger.LogDebug("New client connected: " + socket?.RemoteEndPoint?.ToString());
                 }
-                catch (Exception e)
+                catch (SocketException ex)
                 {
-                    
+                    Logger.LogError("Failed to accept socket: {0}", ex);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to create new client: {0}", ex);
                 }
             }
 
+            // Cleanup
             _socket.Close();
             _socket.Dispose();
             _socket = null;
+
+            Logger.LogInformation("Waiting for clients to disconnect");
+            Task.WaitAll(clientTasks.ToArray(), 10000);
+            Logger.LogInformation("Network stopped");
         }
 
         public void Close()
         {
             _running = false;
+
+            foreach(NetworkClient client in _clients)
+            {
+                client.Disconnect();
+            }
         }
 
         public void Dispose()
         {
+            Close();
             _socket?.Dispose();
         }
     }
