@@ -77,6 +77,8 @@ namespace L2Lattice.L2Core.Network
                 if (result.IsCompleted)
                     break;
             }
+
+            Logger.LogInformation("Receiving finished");
             // Cleanup
             writer.Complete();
         }
@@ -90,11 +92,16 @@ namespace L2Lattice.L2Core.Network
                 if (result.IsCanceled || result.IsCompleted)
                     break;
 
+                Logger.LogInformation("Sending packet");
                 ReadOnlySequence<byte> buffer = result.Buffer;
                 foreach(var segment in buffer)
                     await socket.SendAsync(segment, SocketFlags.None);
+                Logger.LogInformation("Sent {0} bytes", buffer.Length);
+
+                reader.AdvanceTo(buffer.End);
             }
 
+            Logger.LogInformation("Sending finished");
             reader.Complete();
         }
     }

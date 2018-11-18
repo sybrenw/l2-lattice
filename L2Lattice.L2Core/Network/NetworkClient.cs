@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,13 +27,12 @@ namespace L2Lattice.L2Core.Network
         private Socket _socket;
         private DuplexPipe _pipe;
         private LoginCrypt _crypt;
-        private RSA _rsa;
-        private RSAParameters _privateKey;
-        private byte[] _publicKey;
+        private L2KeyPair _rsaKeyPair;
         private byte[] _blowfish;
 
         private uint _sessionKey1 = 10336912;
         private uint _sessionKey2 = 684162767;
+        private uint _serverSession = 39328;
 
         // Socket is connected
         private bool _connected = true;
@@ -42,10 +42,7 @@ namespace L2Lattice.L2Core.Network
         {
             _socket = socket;
             _pipe = new DuplexPipe(_socket);
-            _rsa = RSA.Create();
-            _rsa.KeySize = 1024;
-            _privateKey = _rsa.ExportParameters(true);
-            _publicKey = _privateKey.Modulus;
+            _rsaKeyPair = new L2KeyPair();
 
             _blowfish = new byte[16];
             for (int i = 0; i < 16; i++)
@@ -94,11 +91,21 @@ namespace L2Lattice.L2Core.Network
                         await HandlePacket(raw);
 
                         position = buffer.GetPosition(dataLength, position.Value);
+                        reader.AdvanceTo(data.End);
+                    }
+                    else
+                    {
+                        reader.AdvanceTo(header.End);
                     }
                 }
+                else
+                {
+                    reader.AdvanceTo(buffer.End);
+                }
 
-                reader.AdvanceTo(buffer.Start, buffer.End);
             }
+
+            Logger.LogInformation("Reading finished");
         }
 
         private async Task HandlePacket(byte[] raw)
@@ -109,22 +116,26 @@ namespace L2Lattice.L2Core.Network
             }
 
 
-            uint opcode = BitConverter.ToUInt16(raw, 0);
+            uint opcode = raw[0];
             //opcode = BinaryPrimitives.ReverseEndianness(opcode);
             Logger.LogInformation("Received packet with opcode " + opcode + " and length " + raw.Length);
 
             switch (opcode)
             {
                 case 0x00:
+                    Logger.LogInformation("Received auth login request");
                     await HandleRequestAuthLogin(raw);
                     break;
                 case 0x02:
+                    Logger.LogInformation("Received server login request");
                     await HandleRequestServerLogin(raw);
                     break;
                 case 0x05:
+                    Logger.LogInformation("Received server list request");
                     await HandleRequestServerList(raw);
                     break;
                 case 0x07:
+                    Logger.LogInformation("Received auth GG");
                     await HandleAuthGameGuard(raw);
                     break;
             }
@@ -159,21 +170,21 @@ namespace L2Lattice.L2Core.Network
 
         private async Task HandleRequestAuthLogin(byte[] raw)
         {
-            byte[] data;
+            byte[] data, data2;
             using (MemoryStream stream = new MemoryStream(raw))
             using (BinaryReader reader = new BinaryReader(stream))
             {
                 reader.ReadByte();
-                data = reader.ReadBytes(raw.Length - 1);
+                data = reader.ReadBytes(128);
+                data2 = reader.ReadBytes(128);
+
             }
-            byte[] decrypted = _rsa.DecryptValue(data);
-            
-            string user = BitConverter.ToString(decrypted, 0x5E, 14).Trim().ToLower();
-            string password = BitConverter.ToString(decrypted, 0x6C, 16).Trim();
-            int ncotp = decrypted[0x7c];
-            ncotp |= decrypted[0x7d] << 8;
-            ncotp |= decrypted[0x7e] << 16;
-            ncotp |= decrypted[0x7f] << 24;
+
+            byte[] decrypted = _rsaKeyPair.Decrypt(data);
+            byte[] decrypted2 = _rsaKeyPair.Decrypt(data2);
+
+            string user = Encoding.ASCII.GetString(decrypted, 1, decrypted.Length - 1).Trim('\0').ToLower();
+            string password = Encoding.ASCII.GetString(decrypted2, 1, decrypted2.Length - 1).Trim('\0').ToLower();
 
             Logger.LogInformation("User logged in: " + user);
 
@@ -193,6 +204,21 @@ namespace L2Lattice.L2Core.Network
                 writer.Flush();
                 await SendPacketAsync(stream.ToArray(), 0, (int)stream.Position);
             }
+        }
+
+        private void DecryptRSA(RSAParameters rsaParams)
+        {
+            BigInteger n = PrepareBigInteger(rsaParams.Modulus);
+            BigInteger e = PrepareBigInteger(rsaParams.D);
+        }
+
+        private static BigInteger PrepareBigInteger(byte[] unsignedBigEndian)
+        {
+            // Leave an extra 0x00 byte so that the sign bit is clear
+            byte[] tmp = new byte[unsignedBigEndian.Length + 1];
+            Buffer.BlockCopy(unsignedBigEndian, 0, tmp, 1, unsignedBigEndian.Length);
+            Array.Reverse(tmp);
+            return new BigInteger(tmp);
         }
 
         private async Task HandleRequestServerList(byte[] raw)
@@ -223,12 +249,15 @@ namespace L2Lattice.L2Core.Network
                     writer.Write(server.CurrentPlayers);
                     writer.Write(server.MaxPlayers);
                     writer.Write(server.Status);
-                    writer.Write(server.ServerType);
                     writer.Write(server.Brackets);
+                    writer.Write(server.ServerType);
                 }
 
-                writer.Write(0L);
-                writer.Write((byte)0);
+                writer.Write((short)164);
+                writer.Write((byte)0x01);
+                writer.Write((byte)0x04);
+                writer.Write((byte)0x15);
+                writer.Write(new byte[161]);
                 writer.Flush();
                 await SendPacketAsync(stream.ToArray(), 0, (int)stream.Position);
             }
@@ -236,19 +265,33 @@ namespace L2Lattice.L2Core.Network
 
         private async Task HandleRequestServerLogin(byte[] raw)
         {
+            byte server;
             using (MemoryStream stream = new MemoryStream(raw))
             using (BinaryReader reader = new BinaryReader(stream))
             {
                 reader.ReadByte();
+                reader.ReadUInt32();
+                reader.ReadUInt32();
+                server = reader.ReadByte();
+            }
+
+            using (MemoryStream stream = new MemoryStream(new byte[512]))
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write((byte)0x07);
+
+                writer.Write(_serverSession);
+                writer.Write(_sessionKey1);
+                writer.Write(server);
+                writer.Flush();
+                await SendPacketAsync(stream.ToArray(), 0, (int)stream.Position);
             }
         }
 
         private async Task SendInit()
         {
             Logger.LogInformation("Sending init packet");
-            byte[] packet = null;
-            int length = 0;
-            using (MemoryStream stream = new MemoryStream())
+            using (MemoryStream stream = new MemoryStream(new byte[512]))
             using (BinaryWriter writer = new BinaryWriter(stream))
             {
                 // opcode
@@ -258,7 +301,7 @@ namespace L2Lattice.L2Core.Network
                 // Protocol version
                 writer.Write((uint)50721);
                 // rsa key
-                writer.Write(_publicKey);
+                writer.Write(_rsaKeyPair.ScrambledModulus);
                 // GG
                 writer.Write(0);
                 writer.Write(0);
@@ -275,20 +318,8 @@ namespace L2Lattice.L2Core.Network
 
 
                 writer.Flush();
-                length = (int)stream.Length;
-                // Buffer
-                writer.Write(0);
-                writer.Write(0);
-                writer.Write(0);
-                writer.Write(0);
-                writer.Write(0);
-                writer.Write(0);
-                writer.Flush();
-                packet = stream.ToArray();
+                await SendPacketAsync(stream.ToArray(), 0, (int)stream.Position);
             }
-
-            if (packet != null)
-                await SendPacketAsync(packet, 0, length);
         }
 
         private async Task SendPacketAsync(byte[] raw, int offset, int size)
@@ -313,10 +344,10 @@ namespace L2Lattice.L2Core.Network
 
         private List<ServerDummy> _servers = new List<ServerDummy>()
         {
-            new ServerDummy() { Id = 1, Ip = 2130706433, Port = 2000, AgeLimit = 0, PvP = 0x01, CurrentPlayers = 12424, MaxPlayers = 99999, Status = 0x01, ServerType = 0x01, Brackets = 0x01 },
-            new ServerDummy() { Id = 2, Ip = 2130706433, Port = 2000, AgeLimit = 15, PvP = 0x00, CurrentPlayers = 1337, MaxPlayers = 99999, Status = 0x01, ServerType = 0x32, Brackets = 0x01 },
-            new ServerDummy() { Id = 3, Ip = 2130706433, Port = 2000, AgeLimit = 18, PvP = 0x01, CurrentPlayers = 31, MaxPlayers = 99999, Status = 0x01, ServerType = 0x04, Brackets = 0x00 },
-            new ServerDummy() { Id = 4, Ip = 2130706433, Port = 2000, AgeLimit = 0, PvP = 0x01, CurrentPlayers = 0, MaxPlayers = 99999, Status = 0x00, ServerType = 0x01, Brackets = 0x00 }
+            new ServerDummy() { Id = 1, Ip = 2130706433, Port = 2000, AgeLimit = 0, PvP = 0x01, CurrentPlayers = 8888, MaxPlayers = 9999, Status = 0x01, ServerType = 0x01, Brackets = 0x01 },
+            new ServerDummy() { Id = 2, Ip = 2130706433, Port = 2000, AgeLimit = 15, PvP = 0x00, CurrentPlayers = 7777, MaxPlayers = 9999, Status = 0x01, ServerType = 0x32, Brackets = 0x01 },
+            new ServerDummy() { Id = 3, Ip = 2130706433, Port = 2000, AgeLimit = 18, PvP = 0x01, CurrentPlayers = 31, MaxPlayers = 9999, Status = 0x01, ServerType = 0x04, Brackets = 0x00 },
+            new ServerDummy() { Id = 4, Ip = 2130706433, Port = 2000, AgeLimit = 0, PvP = 0x01, CurrentPlayers = 0, MaxPlayers = 9999, Status = 0x00, ServerType = 0x01, Brackets = 0x00 }
         };
 
 
@@ -327,8 +358,8 @@ namespace L2Lattice.L2Core.Network
             public int Port { get; set; }
             public byte AgeLimit { get; set; }
             public byte PvP { get; set; }
-            public long CurrentPlayers { get; set; }
-            public long MaxPlayers { get; set; }
+            public short CurrentPlayers { get; set; }
+            public short MaxPlayers { get; set; }
             public byte Status { get; set; }
             public int ServerType { get; set; }
             public byte Brackets { get; set; }
