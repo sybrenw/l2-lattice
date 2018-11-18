@@ -6,6 +6,8 @@ namespace L2Lattice.L2Core.Crypt
 {
     public class L2Crypt
     {
+        public byte[] Key { get { return _key; } }
+
         private byte[] _key;
         private BlowfishCipher _cipher;
 
@@ -32,20 +34,24 @@ namespace L2Lattice.L2Core.Crypt
             return EncXORPass(raw, 0, raw.Length, key);
         }
 
-        public void Encrypt(byte[] raw, int offset, int size)
+        public virtual int Encrypt(byte[] raw, int offset, int size)
         {
             for (int i = offset; i < (offset + size); i += 8)
             {
                 _cipher.Encipher(raw, i);
             }
+
+            return raw.Length;
         }
 
-        public void Decrypt(byte[] raw, int offset, int size)
+        public virtual bool Decrypt(byte[] raw, int offset, int size)
         {
             for (int i = offset; i < (offset + size); i += 8)
             {
                 _cipher.Decipher(raw, i);
             }
+
+            return true;
         }
 
         public static bool VerifyChecksum(byte[] raw, int offset, int size)

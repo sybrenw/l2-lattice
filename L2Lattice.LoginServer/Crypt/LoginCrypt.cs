@@ -1,11 +1,12 @@
-﻿using System;
+﻿using L2Lattice.L2Core.Crypt;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace L2Lattice.L2Core.Crypt
+namespace L2Lattice.LoginServer.Crypt
 {
-    public class LoginCrypt
+    public class LoginCrypt : L2Crypt
     {
         public static byte[] DEFAULT_KEY =
         {
@@ -15,17 +16,15 @@ namespace L2Lattice.L2Core.Crypt
         
         private static L2Crypt DefaultCrypt { get; } = new L2Crypt(DEFAULT_KEY);
         private static Random Rnd { get; } = new Random();
-
-        private L2Crypt _crypt = null;
-
-        private bool _firstEncrypt = true;
         
-        public LoginCrypt(byte[] key)
+        private bool _firstEncrypt = true;
+
+        public LoginCrypt(byte[] key) : base(key)
         {
-            _crypt = new L2Crypt(key);
+
         }
 
-        public int Encrypt(byte[] raw, int offset, int size)
+        public override int Encrypt(byte[] raw, int offset, int size)
         {
             // reserve checksum
             size += 4;
@@ -40,7 +39,7 @@ namespace L2Lattice.L2Core.Crypt
                 if ((offset + size) > raw.Length)
                     throw new IOException("Packet too long");
 
-                L2Crypt.EncXORPass(raw, offset, size, Rnd.Next());
+                EncXORPass(raw, offset, size, Rnd.Next());
                 DefaultCrypt.Encrypt(raw, offset, size);
                 _firstEncrypt = false;
             }
@@ -51,14 +50,14 @@ namespace L2Lattice.L2Core.Crypt
                 if ((offset + size) > raw.Length)
                     throw new IOException("Packet too long");
 
-                L2Crypt.AppendChecksum(raw, offset, size);
-                _crypt.Encrypt(raw, offset, size);
+                AppendChecksum(raw, offset, size);
+                base.Encrypt(raw, offset, size);
             }
 
             return size;
         }
 
-        public bool Decrypt(byte[] raw, int offset, int size)
+        public override bool Decrypt(byte[] raw, int offset, int size)
         {
             if ((size % 8) != 0)
                 throw new IOException("Size has to be multiple of 8");
@@ -66,8 +65,16 @@ namespace L2Lattice.L2Core.Crypt
             if ((offset + size) > raw.Length)
                 throw new IOException("Index out of bounds");
 
-            _crypt.Decrypt(raw, offset, size);
-            return L2Crypt.VerifyChecksum(raw, offset, size);
+            base.Decrypt(raw, offset, size);
+            return VerifyChecksum(raw, offset, size);
+        }
+               
+        public static byte[] GenerateKey()
+        {
+            byte[] key = new byte[16];
+            for (int i = 0; i < 16; i++)
+                key[i] = (byte)Rnd.Next(0, 255);
+            return key;
         }
     }
 }

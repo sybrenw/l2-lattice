@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace L2Lattice.L2Core.Network
 {
-    public class NetworkServer: IDisposable
+    public abstract class NetworkServer: IDisposable
     {
         private static ILogger Logger { get; } = Logging.CreateLogger<NetworkServer>();
 
@@ -52,7 +52,7 @@ namespace L2Lattice.L2Core.Network
                     Socket socket = await _socket.AcceptAsync();
 
                     // Create new client and start processing
-                    NetworkClient client = new NetworkClient(socket);
+                    NetworkClient client = CreateClient(socket);
                     clientTasks.Add(client.ProcessAsync());
 
                     // Add client to collection
@@ -95,5 +95,8 @@ namespace L2Lattice.L2Core.Network
             Close();
             _socket?.Dispose();
         }
+
+        /* Abstract methods */
+        protected abstract NetworkClient CreateClient(Socket socket);
     }
 }

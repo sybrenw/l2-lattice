@@ -1,10 +1,8 @@
 ﻿using L2Lattice.L2Core;
-using L2Lattice.L2Core.Network;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
 
-namespace L2Lattice.LoginServer
+namespace L2Lattice.PlayerServer
 {
     internal class Server
     {
