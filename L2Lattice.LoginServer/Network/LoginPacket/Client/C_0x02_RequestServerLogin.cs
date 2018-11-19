@@ -15,11 +15,11 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Client
         {
             int accountId = reader.ReadInt32();
             int authKey = reader.ReadInt32();
-            int server = reader.ReadByte();
+            byte server = reader.ReadByte();
 
             if (Client.Session.Verify(accountId, authKey))
             {
-                Client.SendPacket(new S_0x06_PlayFail(0x01));
+                Client.SendPacket(new S_0x07_PlayOk(server, 1336));
             }
         }
     }

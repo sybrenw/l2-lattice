@@ -20,8 +20,8 @@ namespace L2Lattice.L2Core.Network.Packet
         {            
             Client = client;
             int length = 0;
-            using (MemoryStream stream = new MemoryStream(new byte[512]))
-            using (BinaryWriter writer = new BinaryWriter(stream))
+            using (MemoryStream stream = new MemoryStream(new byte[1024]))
+            using (BinaryWriter writer = new BinaryWriter(stream, Encoding.Unicode))
             {
                 // Reserve header (size)
                 writer.Write((short)0);
@@ -38,6 +38,10 @@ namespace L2Lattice.L2Core.Network.Packet
 
         public abstract void Write(BinaryWriter writer);
 
-
+        public void WriteString(BinaryWriter writer, string text)
+        {
+            writer.Write(Encoding.Unicode.GetBytes(text));
+            writer.Write((char)0);
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Server
             writer.Write(_gameServerSessionId);
             writer.Write(Client.Session.AccountId);
             writer.Write(_server);
+            writer.Write(new byte[2]);
         }
     }
 }

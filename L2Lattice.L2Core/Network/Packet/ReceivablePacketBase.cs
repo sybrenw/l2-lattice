@@ -13,7 +13,7 @@ namespace L2Lattice.L2Core.Network.Packet
         {
             Client = client;
             using (MemoryStream stream = new MemoryStream(raw))
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (BinaryReader reader = new BinaryReader(stream, Encoding.Unicode))
             {
                 // Skip opcode
                 reader.ReadByte();
@@ -22,5 +22,15 @@ namespace L2Lattice.L2Core.Network.Packet
         }
 
         public abstract void Read(BinaryReader reader);
+
+        public string ReadString(BinaryReader reader)
+        {
+            char ch;
+            StringBuilder sb = new StringBuilder();
+            while ((ch = reader.ReadChar()) != 0)
+                sb.Append(ch);
+
+            return sb.ToString();
+        }
     }
 }

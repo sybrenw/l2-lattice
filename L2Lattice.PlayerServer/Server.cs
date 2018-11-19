@@ -8,7 +8,7 @@ namespace L2Lattice.PlayerServer
     {
         private static ILogger Logger { get; } = Logging.CreateLogger<Server>();
 
-        public static Network.LoginServer LoginServer { get; private set; }
+        public static Network.GameServer GameServer { get; private set; }
 
 
         internal static void Main(string[] args)
@@ -23,14 +23,14 @@ namespace L2Lattice.PlayerServer
 
             // Finally start network server
             Logger.LogInformation("Starting network");
-            LoginServer = new Network.LoginServer();
-            LoginServer.Listen("127.0.0.1", 2106).Wait();
+            GameServer = new Network.GameServer();
+            GameServer.Listen("127.0.0.1", 7777).Wait();
         }
 
         internal static void Shutdown()
         {
             Logger.LogInformation("Stopping network");
-            LoginServer.Close();
+            GameServer.Close();
         }
     }
 }

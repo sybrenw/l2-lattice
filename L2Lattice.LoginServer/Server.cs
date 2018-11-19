@@ -26,7 +26,7 @@ namespace L2Lattice.LoginServer
             // Finally start network server
             Logger.LogInformation("Starting network");
             LoginServer = new Network.LoginServer();
-            LoginServer.Listen("127.0.0.1", 2106).Wait();
+            LoginServer.Listen("127.0.0.1", 2107).Wait();
         }
 
         internal static void Shutdown()
