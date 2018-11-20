@@ -7,12 +7,12 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0xFE7C01_ExChatEnterWorld : SendablePacketBase<GameClient>
+    internal class S_0xFE0501_Ex2ndPasswordCheck : SendablePacketBase<GameClient>
     {
         public const byte Opcode = 0xFE;
-        public const ushort SecondaryOpcode = 0x7C01;
+        public const ushort SecondaryOpcode = 0x0501;
 
-        public S_0xFE7C01_ExChatEnterWorld() : base(Opcode, SecondaryOpcode)
+        public S_0xFE0501_Ex2ndPasswordCheck() : base(Opcode, SecondaryOpcode)
         {
 
         }
@@ -20,10 +20,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
         public override void Write(BinaryWriter writer)
         {
             writer.Write(1);
-            writer.Write(1);
-            writer.Write(16777343);
-            writer.Write(2044);
-            writer.Write((short)0);
+            writer.Write(0);
         }
     }
 }

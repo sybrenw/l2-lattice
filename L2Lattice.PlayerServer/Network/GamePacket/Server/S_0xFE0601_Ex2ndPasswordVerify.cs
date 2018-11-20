@@ -7,23 +7,21 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0xFE7C01_ExChatEnterWorld : SendablePacketBase<GameClient>
+    internal class S_0xFE0601_Ex2ndPasswordVerify : SendablePacketBase<GameClient>
     {
         public const byte Opcode = 0xFE;
-        public const ushort SecondaryOpcode = 0x7C01;
+        public const ushort SecondaryOpcode = 0x0601;
 
-        public S_0xFE7C01_ExChatEnterWorld() : base(Opcode, SecondaryOpcode)
+        public S_0xFE0601_Ex2ndPasswordVerify() : base(Opcode, SecondaryOpcode)
         {
 
         }
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(1);
-            writer.Write(1);
-            writer.Write(16777343);
-            writer.Write(2044);
-            writer.Write((short)0);
+            // No failure
+            writer.Write(0);
+            writer.Write(0);
         }
     }
 }

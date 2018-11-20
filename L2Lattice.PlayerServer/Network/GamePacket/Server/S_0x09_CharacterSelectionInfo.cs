@@ -109,6 +109,8 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
                 writer.Write(new byte[6 * 4]);
                 // Belt
                 writer.Write(0);
+                // Unknown
+                writer.Write(new byte[4 * 4]);
                 // Brooch
                 writer.Write(new byte[7 * 4]);
                 // Visible gear
@@ -164,7 +166,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
                 writer.Write((byte)6);
                 writer.Write((byte)0);
 
-                string hexBytes = "060006000200000000000000000000000000000000D8DE4000000000004BB94000000000BC00000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000E02202002C010000E703000001000000010001";
+                string hexBytes = "0000000000D8DE4000000000004BB94000000000BC00000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000E02202002C010000E703000001000000010001";
                 byte[] bytes = new byte[hexBytes.Length / 2];
 
                 for (int i = 0; i < hexBytes.Length; i += 2)

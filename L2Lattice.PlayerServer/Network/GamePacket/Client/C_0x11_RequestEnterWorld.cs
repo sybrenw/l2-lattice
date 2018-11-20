@@ -21,6 +21,9 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
         {
             Client.SendPacket(new S_0xFE7C01_ExChatEnterWorld());
             Client.SendPacket(new S_0xFEC701_ExEnterWorld());
+            Client.SendPacket(new S_0x32_ExUserInfo());
+
+            Client.SendPacket(new S_0x40_UserAck());
         }
     }
 }

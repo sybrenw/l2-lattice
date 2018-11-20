@@ -10,12 +10,21 @@ namespace L2Lattice.L2Core.Network.Packet
         public T Client { get; private set; }
 
         private byte _opcode;
+        private ushort _opcode2;
 
         public SendablePacketBase(byte opcode)
         {
             _opcode = opcode;
         }
         
+        public SendablePacketBase(byte opcode, ushort opcode2)
+        {
+            _opcode = opcode;
+                       
+            _opcode2 = (ushort)((opcode2 & 0xFF00) >> 8);
+            _opcode2 |= (ushort)((opcode2 & 0x00FF) << 8);
+        }
+
         public int Write(T client, out byte[] buffer)
         {            
             Client = client;
@@ -27,6 +36,8 @@ namespace L2Lattice.L2Core.Network.Packet
                 writer.Write((short)0);
                 // Write opcode
                 writer.Write(_opcode);
+                if (_opcode2 != 0)
+                    writer.Write(_opcode2);
                 Write(writer);
                 writer.Flush();
                 length = (int) stream.Position;

@@ -26,6 +26,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
             reader.ReadInt32();
 
             Client.SendPacket(new S_0x0B_CharacterSelected());
+            Client.SendPacket(new S_0xFEEA00_ExSubClassInfo());
         }
     }
 }

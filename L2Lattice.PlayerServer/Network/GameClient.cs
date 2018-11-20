@@ -14,9 +14,9 @@ namespace L2Lattice.PlayerServer.Network
     public class GameClient : NetworkClient
     {
         private static ILogger Logger { get; } = Logging.CreateLogger<GameClient>();
-
+               
         private static Random Rnd { get; } = new Random();
-
+        
         public byte[] Key => _crypt.Key;
 
         public int AccountId { get; set; }
@@ -37,10 +37,8 @@ namespace L2Lattice.PlayerServer.Network
         {
             // Decrypt data block
             _crypt.Decrypt(raw, 0, raw.Length);
-
-            byte opcode = raw[0];
-
-            ReceivablePacketBase<GameClient> packet = SelectPacket(opcode);
+            
+            ReceivablePacketBase<GameClient> packet = SelectPacket(raw);
 
             if (packet != null)
             {
@@ -49,7 +47,7 @@ namespace L2Lattice.PlayerServer.Network
             }
             else
             {
-                Logger.LogWarning("Received packet with unknown opcode {0} and length {1}", opcode, raw.Length);
+                Logger.LogWarning("Received packet with unknown opcode {0} and length {1}", raw[0], raw.Length);
             }
         }
 
@@ -58,8 +56,14 @@ namespace L2Lattice.PlayerServer.Network
             byte[] buffer;
             int length = packet.Write(this, out buffer);
             // Encrypt data block
+
+            byte[] tmp1 = new byte[buffer.Length];
+            byte[] tmp2 = new byte[buffer.Length];
+            Array.Copy(buffer, tmp1, buffer.Length);
+
             _crypt.Encrypt(buffer, 2, length - 2);
-            length += 2;
+            //Array.Copy(buffer, tmp2, buffer.Length);
+            //_crypt.Decrypt(buffer, 2, length - 2);
 
             // Copy header
             byte[] header = BitConverter.GetBytes((short)length);
@@ -67,9 +71,10 @@ namespace L2Lattice.PlayerServer.Network
             await SendPacketAsync(buffer, 0, length);
         }
 
-        private ReceivablePacketBase<GameClient> SelectPacket(byte opcode)
+        private ReceivablePacketBase<GameClient> SelectPacket(byte[] raw)
         {
             ReceivablePacketBase<GameClient> packet = null;
+            byte opcode = raw[0];
             switch (opcode)
             {
                 case C_0x0E_SendProtocolVersion.Opcode:
@@ -84,6 +89,32 @@ namespace L2Lattice.PlayerServer.Network
                 case C_0x11_RequestEnterWorld.Opcode:
                     packet = new C_0x11_RequestEnterWorld();
                     break;
+                case 0xD0:
+                    packet = SelectPacket_0x0D(raw);
+                    break;
+            }
+
+            return packet;
+        }
+
+        private ReceivablePacketBase<GameClient> SelectPacket_0x0D(byte[] raw)
+        {
+            ReceivablePacketBase<GameClient> packet = null;
+            byte[] op = new byte[2];
+            op[0] = raw[2];
+            op[1] = raw[1];
+            ushort opcode = BitConverter.ToUInt16(op, 0);
+            switch(opcode)
+            {
+                case C_0xD0A600_RequestEx2ndPasswordCheck.SecondaryOpcode:
+                    packet = new C_0xD0A600_RequestEx2ndPasswordCheck();
+                    break;
+                case C_0xD0A700_RequestEx2ndPasswordVerify.SecondaryOpcode:
+                    packet = new C_0xD0A700_RequestEx2ndPasswordVerify();
+                    break;
+                case C_0xD0D100_RequestCashShopBtn.SecondaryOpcode:
+                    packet = new C_0xD0D100_RequestCashShopBtn();
+                    break;
             }
 
             return packet;
@@ -94,7 +125,7 @@ namespace L2Lattice.PlayerServer.Network
             List<Player> players = new List<Player>();
             Player player = new Player();
             player.Id = 1;
-            player.Name = "Syb the banana :'D";
+            player.Name = "Syb";
             player.AccountId = AccountId;
             player.AccountName = "_" + AccountId;
             players.Add(player);
