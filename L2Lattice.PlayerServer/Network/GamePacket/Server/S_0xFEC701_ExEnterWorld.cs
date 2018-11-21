@@ -10,9 +10,8 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
     internal class S_0xFEC701_ExEnterWorld : SendablePacketBase<GameClient>
     {
         public const byte Opcode = 0xFE;
-        public const ushort SecondaryOpcode = 0xC701;
 
-        public S_0xFEC701_ExEnterWorld() : base(Opcode, SecondaryOpcode)
+        public S_0xFEC701_ExEnterWorld() : base(0xFE, 0xC7, 0x01)
         {
 
         }

@@ -113,14 +113,16 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
                 writer.Write(new byte[4 * 4]);
                 // Brooch
                 writer.Write(new byte[7 * 4]);
+                // Unknown
+                writer.Write(new byte[92]);
                 // Visible gear
-                writer.Write(36495);
                 writer.Write(0);
-                writer.Write(35072);
-                writer.Write(35070);
-                writer.Write(35071);
-                writer.Write(35073);
-                writer.Write(36495);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
+                writer.Write(0);
                 writer.Write(0);
                 writer.Write(0);
                 // Enchantments
@@ -130,16 +132,16 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
                 writer.Write((short)20);
                 writer.Write((short)20);
                 // Hair / Face
-                writer.Write(0);
+                writer.Write(2);
                 writer.Write(0);
                 writer.Write(0);
                 // Max Hp/Mp
-                writer.Write(0.0);
-                writer.Write(0.0);
+                writer.Write(40000.0);
+                writer.Write(40000.0);
                 // Time to deletion
                 writer.Write(0);
                 // Class (old?)
-                writer.Write(0);
+                writer.Write(188);
                 // Selected
                 writer.Write(1);
                 // Weapon enchantment, aug1, aug2
@@ -153,30 +155,18 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
                 writer.Write(0);
                 writer.Write(0);
                 writer.Write(0);
-                writer.Write(1.3010380600870544E-308);
-                writer.Write(3.1436773514316373E-308);
+                writer.Write(0.0);
+                writer.Write(0.0);
                 // Vitality
-                writer.Write(0);
-                writer.Write(0);
+                writer.Write(1400000);
+                writer.Write(300);
                 // Unknown
-                writer.Write(1751808);
-                writer.Write(100664832);
+                writer.Write(999);
+                writer.Write(1);
 
-                writer.Write((byte)0);
-                writer.Write((byte)6);
-                writer.Write((byte)0);
-
-                string hexBytes = "0000000000D8DE4000000000004BB94000000000BC00000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000E02202002C010000E703000001000000010001";
-                byte[] bytes = new byte[hexBytes.Length / 2];
-
-                for (int i = 0; i < hexBytes.Length; i += 2)
-                    bytes[i / 2] = Convert.ToByte(hexBytes.Substring(i, 2), 16);
-
-                // Unknown (lazy syb)
-                writer.Write(bytes);
-
-                // Some extra padding (to be sure)
-                writer.Write(new byte[8]);
+                writer.Write((byte)1);
+                writer.Write((byte)1);
+                writer.Write((byte)1);                                
             }
         }
     }

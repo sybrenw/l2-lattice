@@ -89,6 +89,10 @@ namespace L2Lattice.PlayerServer.Network
                 case C_0x11_RequestEnterWorld.Opcode:
                     packet = new C_0x11_RequestEnterWorld();
                     break;
+                case 0xbc:
+                case C_0x0F_MoveToLocation.Opcode:
+                    packet = new C_0x0F_MoveToLocation();
+                    break;
                 case 0xD0:
                     packet = SelectPacket_0x0D(raw);
                     break;

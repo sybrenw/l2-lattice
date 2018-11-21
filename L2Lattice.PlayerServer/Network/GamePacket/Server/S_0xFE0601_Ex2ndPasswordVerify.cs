@@ -10,9 +10,8 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
     internal class S_0xFE0601_Ex2ndPasswordVerify : SendablePacketBase<GameClient>
     {
         public const byte Opcode = 0xFE;
-        public const ushort SecondaryOpcode = 0x0601;
 
-        public S_0xFE0601_Ex2ndPasswordVerify() : base(Opcode, SecondaryOpcode)
+        public S_0xFE0601_Ex2ndPasswordVerify() : base(Opcode, 0x06, 0x01)
         {
 
         }

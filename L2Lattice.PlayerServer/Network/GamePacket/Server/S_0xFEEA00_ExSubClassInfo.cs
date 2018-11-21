@@ -11,9 +11,8 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Server
     internal class S_0xFEEA00_ExSubClassInfo : SendablePacketBase<GameClient>
     {
         public const byte Opcode = 0xFE;
-        public const ushort SecondaryOpcode = 0xEA00;
 
-        public S_0xFEEA00_ExSubClassInfo() : base(Opcode,SecondaryOpcode)
+        public S_0xFEEA00_ExSubClassInfo() : base(Opcode,0xEA, 0x00)
         {
 
         }

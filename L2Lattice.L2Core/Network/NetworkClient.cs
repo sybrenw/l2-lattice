@@ -51,44 +51,52 @@ namespace L2Lattice.L2Core.Network
         
         private async Task ReadAsync(PipeReader reader)
         {
-            while(_connected)
+            try
             {
-                ReadResult result = await reader.ReadAsync();
-                
-                Logger.LogInformation("Received packet");
-
-                if (result.IsCanceled || result.IsCompleted)
-                    break;
-
-                ReadOnlySequence<byte> buffer = result.Buffer;
-                SequencePosition? position = buffer.Start;
-                
-                if (buffer.Length > 2)
+                while (_connected)
                 {
-                    var header = buffer.Slice(position.Value, 2);
-                    int dataLength = BitConverter.ToUInt16(header.First.Span) - 2;
+                    ReadResult result = await reader.ReadAsync();
 
-                    position = buffer.GetPosition(2, position.Value);
+                    Logger.LogInformation("Received packet");
 
-                    if (buffer.Length >= 2 + dataLength)
+                    if (result.IsCanceled || result.IsCompleted)
+                        break;
+
+                    ReadOnlySequence<byte> buffer = result.Buffer;
+                    SequencePosition consumed = buffer.Start;
+
+                    long position = 0;
+
+                    while (position + 2 < buffer.Length)
                     {
-                        var data = buffer.Slice(position.Value, dataLength);
+                        var header = buffer.Slice(position, 2);
+                        int dataLength = BitConverter.ToUInt16(header.First.Span) - 2;
+
+                        position += 2;
+
+                        // Check if all data is in buffer
+                        if (position + dataLength > buffer.Length)
+                            break;
+
+                        // Extract data
+                        var data = buffer.Slice(position, dataLength);
                         byte[] raw = data.ToArray();
                         HandlePacket(raw);
 
-                        position = buffer.GetPosition(dataLength, position.Value);
-                        reader.AdvanceTo(data.End);
-                    }
-                    else
-                    {
-                        reader.AdvanceTo(header.End);
-                    }
-                }
-                else
-                {
-                    reader.AdvanceTo(buffer.End);
-                }
+                        // Update position
+                        position += dataLength;
 
+                        // Set consumed to package end
+                        consumed = data.End;
+                    }
+
+                    reader.AdvanceTo(consumed, buffer.End);
+
+                }
+            }
+            catch(Exception e)
+            {
+                Logger.LogError("Reading failed: {0}", e);
             }
 
             Logger.LogInformation("Reading finished");
