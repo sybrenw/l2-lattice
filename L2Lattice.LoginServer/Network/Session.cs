@@ -1,15 +1,17 @@
-﻿using System;
+﻿using L2Lattice.LoginServer.Enum;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace L2Lattice.LoginServer
+namespace L2Lattice.LoginServer.Network
 {
     public class Session
     {
         public int Id { get; }
         public int AccountId { get; set; }
-        public int AuthKey { get; set; }
-
+        public int LoginAuthKey { get; set; }
+        public int GameAuthKey { get; set; }
+        
         public Session(int id)
         {
             Id = id;
@@ -17,7 +19,7 @@ namespace L2Lattice.LoginServer
         
         public bool Verify(int accountId, int authKey)
         {
-            return accountId == AccountId && authKey == AuthKey;
+            return accountId == AccountId && authKey == LoginAuthKey;
         }
     }
 }

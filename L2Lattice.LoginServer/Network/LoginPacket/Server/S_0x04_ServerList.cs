@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 {
-    internal class S_0x04_ServerList : SendablePacketBase<LoginClient>
+    internal class S_0x04_ServerList : SendablePacket<LoginClient>
     {
         public static byte Opcode { get; } = 0x04;
 

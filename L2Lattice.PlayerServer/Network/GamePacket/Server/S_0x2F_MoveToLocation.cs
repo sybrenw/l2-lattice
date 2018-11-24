@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0x2F_MoveToLocation : SendablePacketBase<GameClient>
+    internal class S_0x2F_MoveToLocation : SendablePacket<GameClient>
     {
         public const byte Opcode = 0x2F;
 

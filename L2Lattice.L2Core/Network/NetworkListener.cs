@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace L2Lattice.L2Core.Network
 {
-    public abstract class NetworkServer: IDisposable
+    public abstract class NetworkListener: IDisposable
     {
-        private static ILogger Logger { get; } = Logging.CreateLogger<NetworkServer>();
+        private static ILogger Logger { get; } = Logging.CreateLogger<NetworkListener>();
 
         private Socket _socket;
 
@@ -24,18 +24,18 @@ namespace L2Lattice.L2Core.Network
 
         private bool _running = true;
 
-        public NetworkServer()
+        public NetworkListener()
         {
 
         }
         
-        public async Task Listen(string ip, int port)
+        public async Task ListenAsync(string ip, int port)
         {
             IPAddress ipAddress = IPAddress.Parse(ip);
-            await Listen(ipAddress, port);
+            await ListenAsync(ipAddress, port);
         }
 
-        public async Task Listen(IPAddress ip, int port)
+        public async Task ListenAsync(IPAddress ip, int port)
         {
             IPEndPoint endPoint = new IPEndPoint(ip, port);
             _socket = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

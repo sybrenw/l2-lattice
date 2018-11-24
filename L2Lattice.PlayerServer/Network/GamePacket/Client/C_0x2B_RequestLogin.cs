@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
-    internal class C_0x2B_RequestLogin : ReceivablePacketBase<GameClient>
+    internal class C_0x2B_RequestLogin : ReceivablePacket<GameClient>
     {
         public const byte Opcode = 0x2B;
                
@@ -17,7 +17,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        public override void Read(BinaryReader reader)
+        protected override void Read(BinaryReader reader)
         {
             string accountName = ReadString(reader);
             int accountId = reader.ReadInt32();

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0x0A_LoginResult : SendablePacketBase<GameClient>
+    internal class S_0x0A_LoginResult : SendablePacket<GameClient>
     {
         public const byte Opcode = 0x0A;
 

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
-    internal class C_0x0F_MoveToLocation : ReceivablePacketBase<GameClient>
+    internal class C_0x0F_MoveToLocation : ReceivablePacket<GameClient>
     {
         public const byte Opcode = 0x0F;
 
@@ -17,7 +17,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        public override void Read(BinaryReader reader)
+        protected override void Read(BinaryReader reader)
         {
             int[] dest = new int[3];
             int[] pos = new int[3];

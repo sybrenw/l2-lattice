@@ -6,7 +6,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network
 {
-    public class GameServer : NetworkServer
+    public class GameServer : NetworkListener
     {
 
 

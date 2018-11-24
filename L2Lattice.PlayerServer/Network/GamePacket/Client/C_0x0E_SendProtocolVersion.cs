@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
-    internal class C_0x0E_SendProtocolVersion : ReceivablePacketBase<GameClient>
+    internal class C_0x0E_SendProtocolVersion : ReceivablePacket<GameClient>
     {
         public const byte Opcode = 0x0E;
 
@@ -17,7 +17,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        public override void Read(BinaryReader reader)
+        protected override void Read(BinaryReader reader)
         {
             int protocol = reader.ReadInt32();
             int accountId = reader.ReadInt32();

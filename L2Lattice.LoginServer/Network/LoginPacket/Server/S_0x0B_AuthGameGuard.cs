@@ -6,7 +6,7 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 {
-    internal class S_0x0B_AuthGameGuard : SendablePacketBase<LoginClient>
+    internal class S_0x0B_AuthGameGuard : SendablePacket<LoginClient>
     {
         public static byte Opcode { get; } = 0x0B;
 

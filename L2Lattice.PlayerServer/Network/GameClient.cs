@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace L2Lattice.PlayerServer.Network
 {
@@ -33,17 +34,17 @@ namespace L2Lattice.PlayerServer.Network
 
         }
 
-        protected override void HandlePacket(byte[] raw)
+        protected override async Task HandlePacket(byte[] raw)
         {
             // Decrypt data block
             _crypt.Decrypt(raw, 0, raw.Length);
             
-            ReceivablePacketBase<GameClient> packet = SelectPacket(raw);
+            ReceivablePacket<GameClient> packet = SelectPacket(raw);
 
             if (packet != null)
             {
                 Logger.LogDebug("Received packet {0}", packet.GetType().Name);
-                packet.Read(this, raw);
+                await packet.ReadAsync(this, raw);
             }
             else
             {
@@ -51,7 +52,7 @@ namespace L2Lattice.PlayerServer.Network
             }
         }
 
-        public async void SendPacket(SendablePacketBase<GameClient> packet)
+        public async void SendPacket(SendablePacket<GameClient> packet)
         {
             byte[] buffer;
             int length = packet.Write(this, out buffer);
@@ -71,9 +72,9 @@ namespace L2Lattice.PlayerServer.Network
             await SendPacketAsync(buffer, 0, length);
         }
 
-        private ReceivablePacketBase<GameClient> SelectPacket(byte[] raw)
+        private ReceivablePacket<GameClient> SelectPacket(byte[] raw)
         {
-            ReceivablePacketBase<GameClient> packet = null;
+            ReceivablePacket<GameClient> packet = null;
             byte opcode = raw[0];
             switch (opcode)
             {
@@ -101,9 +102,9 @@ namespace L2Lattice.PlayerServer.Network
             return packet;
         }
 
-        private ReceivablePacketBase<GameClient> SelectPacket_0x0D(byte[] raw)
+        private ReceivablePacket<GameClient> SelectPacket_0x0D(byte[] raw)
         {
-            ReceivablePacketBase<GameClient> packet = null;
+            ReceivablePacket<GameClient> packet = null;
             byte[] op = new byte[2];
             op[0] = raw[2];
             op[1] = raw[1];

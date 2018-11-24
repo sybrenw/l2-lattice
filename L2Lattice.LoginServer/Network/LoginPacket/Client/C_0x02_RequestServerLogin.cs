@@ -4,14 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace L2Lattice.LoginServer.Network.LoginPacket.Client
 {
-    internal class C_0x02_RequestServerLogin : ReceivablePacketBase<LoginClient>
+    internal class C_0x02_RequestServerLogin : ReceivablePacket<LoginClient>
     {
         public const byte Opcode = 0x02;
 
-        public override void Read(BinaryReader reader)
+        protected override async Task ReadAsync(BinaryReader reader)
         {
             int accountId = reader.ReadInt32();
             int authKey = reader.ReadInt32();
@@ -19,7 +20,7 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Client
 
             if (Client.Session.Verify(accountId, authKey))
             {
-                Client.SendPacket(new S_0x07_PlayOk(server, 1336));
+                await Client.SendPacket(new S_0x07_PlayOk(server, 1336));
             }
         }
     }

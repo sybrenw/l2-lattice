@@ -5,13 +5,13 @@ using System.Text;
 
 namespace L2Lattice.L2Core.Network.Packet
 {
-    public abstract class SendablePacketBase<T> : ISendablePacket where T : NetworkClient
+    public abstract class SendablePacket<T> : ISendablePacket where T : NetworkClient
     {
         public T Client { get; private set; }
 
         private byte[] _opcodes;
                 
-        public SendablePacketBase(params byte[] opcodes)
+        public SendablePacket(params byte[] opcodes)
         {
             _opcodes = opcodes;
         }

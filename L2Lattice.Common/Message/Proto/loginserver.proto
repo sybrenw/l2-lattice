@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+package login;
+option csharp_namespace = "L2Lattice.Protobuf.RegisterPlayerServer";
+
+message RegisterPlayerServer {
+	int32 id = 1;
+	string name = 2; 
+	string key = 3;
+}

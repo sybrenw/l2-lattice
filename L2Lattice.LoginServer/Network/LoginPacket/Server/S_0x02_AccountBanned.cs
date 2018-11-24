@@ -6,7 +6,7 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 {
-    internal class S_0x02_AccountBanned : SendablePacketBase<LoginClient>
+    internal class S_0x02_AccountBanned : SendablePacket<LoginClient>
     {
         public static byte Opcode { get; } = 0x02;
 
@@ -20,7 +20,6 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Server
         public override void Write(BinaryWriter writer)
         {
             writer.Write(_reason);
-            writer.Write(0);
         }
     }
 }

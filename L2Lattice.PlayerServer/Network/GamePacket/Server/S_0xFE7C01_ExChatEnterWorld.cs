@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0xFE7C01_ExChatEnterWorld : SendablePacketBase<GameClient>
+    internal class S_0xFE7C01_ExChatEnterWorld : SendablePacket<GameClient>
     {
         public const byte Opcode = 0xFE;
         public const ushort SecondaryOpcode = 0x7C01;

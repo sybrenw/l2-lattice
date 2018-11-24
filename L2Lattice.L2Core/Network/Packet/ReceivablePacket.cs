@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace L2Lattice.L2Core.Network.Packet
 {
-    public abstract class ReceivablePacketBase<T> : IReceivablePacket where T : NetworkClient
+    public abstract class ReceivablePacket<T> : IReceivablePacket<T> where T : NetworkClient
     {     
         public T Client { get; private set; }
         
-        public void Read(T client, byte[] raw)
+        public async Task ReadAsync(T client, byte[] raw)
         {
             Client = client;
             using (MemoryStream stream = new MemoryStream(raw))
@@ -17,11 +18,17 @@ namespace L2Lattice.L2Core.Network.Packet
             {
                 // Skip opcode
                 reader.ReadByte();
-                Read(reader);
+                await ReadAsync(reader);
             }
         }
 
-        public abstract void Read(BinaryReader reader);
+        protected virtual void Read(BinaryReader reader) { }
+
+        protected virtual async Task ReadAsync(BinaryReader reader)
+        {
+            Read(reader);
+            await Task.CompletedTask;
+        }
 
         public string ReadString(BinaryReader reader)
         {

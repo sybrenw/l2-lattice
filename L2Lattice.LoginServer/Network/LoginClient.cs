@@ -3,8 +3,10 @@ using L2Lattice.L2Core.Crypt;
 using L2Lattice.L2Core.Network;
 using L2Lattice.L2Core.Network.Packet;
 using L2Lattice.LoginServer.Crypt;
+using L2Lattice.LoginServer.Enum;
 using L2Lattice.LoginServer.Network.LoginPacket.Client;
 using L2Lattice.LoginServer.Network.LoginPacket.Server;
+using L2Lattice.LoginServer.Service;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -27,21 +29,28 @@ namespace L2Lattice.LoginServer.Network
         public L2KeyPair RSAKeyPair { get; }
 
         /* Private members */
+        private LoginService _loginService;
         private LoginCrypt _crypt;
 
-        public LoginClient(Socket socket) : base(socket)
+        internal LoginClient(Socket socket, LoginService loginService) : base(socket)
         {
-            Session = new Session(1);
+            _loginService = loginService;
+
+            // Create session
+            Session = _loginService.CreateSession();
+
+            // Setup encryption
             _crypt = new LoginCrypt(LoginCrypt.GenerateKey());
             RSAKeyPair = new L2KeyPair();
         }        
 
         protected override void Initialize()
         {
-            SendPacket(new S_0x00_SetEncryption());
+            Task sending = SendPacket(new S_0x00_SetEncryption());
+            Task.WaitAll(sending);
         }
 
-        protected override void HandlePacket(byte[] raw)
+        protected override async Task HandlePacket(byte[] raw)
         {
             if (!_crypt.Decrypt(raw, 0, raw.Length))
             {
@@ -49,12 +58,12 @@ namespace L2Lattice.LoginServer.Network
             }
             
             byte opcode = raw[0];
-            ReceivablePacketBase<LoginClient> packet = SelectPacket(opcode);
+            ReceivablePacket<LoginClient> packet = SelectPacket(opcode);
 
             if (packet != null)
             {
                 Logger.LogDebug("Received packet {0}", packet.GetType().Name);
-                packet.Read(this, raw);
+                await packet.ReadAsync(this, raw);
             }
             else
             {
@@ -62,7 +71,7 @@ namespace L2Lattice.LoginServer.Network
             }
         }
 
-        public async void SendPacket(SendablePacketBase<LoginClient> packet)
+        public async Task SendPacket(SendablePacket<LoginClient> packet)
         {
             byte[] buffer;
             int length = packet.Write(this, out buffer);
@@ -75,7 +84,7 @@ namespace L2Lattice.LoginServer.Network
             await SendPacketAsync(buffer, 0, length);
         }
 
-        private ReceivablePacketBase<LoginClient> SelectPacket(byte opcode)
+        private ReceivablePacket<LoginClient> SelectPacket(byte opcode)
         {
             switch (opcode)
             {
@@ -92,23 +101,23 @@ namespace L2Lattice.LoginServer.Network
             return null;
         }
 
-        public void TryLogin(string user, string password)
+        public async Task TryLogin(string user, string password)
         {
-            if (user == "test" && password == "test")
+            int accountId = await _loginService.Login(user, password, IpAddress);
+            
+            if (accountId > 0)
             {
-                Session.AccountId = 1;
-                Session.AuthKey = 1337;
-                SendPacket(new S_0x03_LoginOk());
-                return;
+                Session.AccountId = accountId;
+                await SendPacket(new S_0x03_LoginOk());
             }
-
-            if (user == "banned")
+            else if (accountId == (int)LoginResult.Banned)
             {
-                SendPacket(new S_0x02_AccountBanned(0x20));
-                return;
+                await SendPacket(new S_0x02_AccountBanned(0x20));
             }
-
-            SendPacket(new S_0x01_LoginFail());
+            else 
+            {
+                await SendPacket(new S_0x01_LoginFail());
+            }
         }
     }
 }

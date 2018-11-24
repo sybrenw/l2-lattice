@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0xFE3A01_ExCashShopBtn : SendablePacketBase<GameClient>
+    internal class S_0xFE3A01_ExCashShopBtn : SendablePacket<GameClient>
     {
         public const byte Opcode = 0xFE;
 

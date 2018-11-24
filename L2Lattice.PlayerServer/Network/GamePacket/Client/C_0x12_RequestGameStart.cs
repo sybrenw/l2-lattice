@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
-    internal class C_0x12_RequestGameStart : ReceivablePacketBase<GameClient>
+    internal class C_0x12_RequestGameStart : ReceivablePacket<GameClient>
     {
         public const byte Opcode = 0x12;
 
@@ -17,7 +17,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        public override void Read(BinaryReader reader)
+        protected override void Read(BinaryReader reader)
         {
             int character = reader.ReadInt32();
             reader.ReadInt16();

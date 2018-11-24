@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0xFE0501_Ex2ndPasswordCheck : SendablePacketBase<GameClient>
+    internal class S_0xFE0501_Ex2ndPasswordCheck : SendablePacket<GameClient>
     {
         public const byte Opcode = 0xFE;
 

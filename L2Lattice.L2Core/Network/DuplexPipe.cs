@@ -61,7 +61,7 @@ namespace L2Lattice.L2Core.Network
                     // Check if disconnected
                     if (bytesRead == 0)
                         break;
-
+                                  
                     // Tell pipe how much was read
                     writer.Advance(bytesRead);
                 }

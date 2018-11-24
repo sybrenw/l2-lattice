@@ -6,16 +6,11 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Network
 {
-    public class LoginServer : NetworkServer
+    internal class PlayerServerListener : NetworkListener
     {
-        public LoginServer()
-        {
-
-        }
-
         protected override NetworkClient CreateClient(Socket socket)
         {
-            return new LoginClient(socket);
+            return new PlayerServerConnection(socket);
         }
     }
 }

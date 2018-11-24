@@ -6,7 +6,7 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 {
-    internal class S_0x01_LoginFail : SendablePacketBase<LoginClient>
+    internal class S_0x01_LoginFail : SendablePacket<LoginClient>
     {
         public static byte Opcode { get; } = 0x01;
 
@@ -17,7 +17,7 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 
         public override void Write(BinaryWriter writer)
         {
-
+            writer.Write((byte)0x02);
         }
     }
 }

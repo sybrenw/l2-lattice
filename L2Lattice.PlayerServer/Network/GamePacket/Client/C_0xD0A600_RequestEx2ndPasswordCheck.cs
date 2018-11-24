@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
-    internal class C_0xD0A600_RequestEx2ndPasswordCheck : ReceivablePacketBase<GameClient>
+    internal class C_0xD0A600_RequestEx2ndPasswordCheck : ReceivablePacket<GameClient>
     {
         public const byte Opcode = 0xD0;
         public const ushort SecondaryOpcode = 0x0A600;
@@ -18,7 +18,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        public override void Read(BinaryReader reader)
+        protected override void Read(BinaryReader reader)
         {
             Client.SendPacket(new S_0xFE0501_Ex2ndPasswordCheck());
         }

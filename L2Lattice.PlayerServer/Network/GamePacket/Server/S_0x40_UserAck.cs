@@ -7,7 +7,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0x40_UserAck : SendablePacketBase<GameClient>
+    internal class S_0x40_UserAck : SendablePacket<GameClient>
     {
         public const byte Opcode = 0x40;
 

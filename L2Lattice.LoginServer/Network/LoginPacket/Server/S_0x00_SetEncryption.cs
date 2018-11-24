@@ -6,7 +6,7 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 {
-    internal class S_0x00_SetEncryption : SendablePacketBase<LoginClient>
+    internal class S_0x00_SetEncryption : SendablePacket<LoginClient>
     {
         public const byte Opcode = 0x00;
         public const uint ProtocolVersion = 50721;

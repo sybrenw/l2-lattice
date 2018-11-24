@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\L2Lattice.Common\L2Lattice.Common.csproj" />
     <ProjectReference Include="..\L2Lattice.L2Core\L2Lattice.L2Core.csproj" />
   </ItemGroup>
 

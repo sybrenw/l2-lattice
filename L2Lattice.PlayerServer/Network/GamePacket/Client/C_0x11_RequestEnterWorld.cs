@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
-    internal class C_0x11_RequestEnterWorld : ReceivablePacketBase<GameClient>
+    internal class C_0x11_RequestEnterWorld : ReceivablePacket<GameClient>
     {
         public const byte Opcode = 0x11;
 
@@ -17,7 +17,7 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        public override void Read(BinaryReader reader)
+        protected override void Read(BinaryReader reader)
         {
             Client.SendPacket(new S_0xFE7C01_ExChatEnterWorld());
             Client.SendPacket(new S_0xFEC701_ExEnterWorld());

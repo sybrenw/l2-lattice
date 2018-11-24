@@ -6,6 +6,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace L2Lattice.L2Core.Network
 {
-    public abstract class NetworkClient : IDisposable
+    public abstract class NetworkClient : INetworkClient, IDisposable
     {
         private static ILogger Logger { get; } = Logging.CreateLogger<NetworkClient>();
 
@@ -26,19 +27,38 @@ namespace L2Lattice.L2Core.Network
         /* Private members */
         private Socket _socket;
         private DuplexPipe _pipe;
-        
+
         // Socket is connected
-        private bool _connected = true;
+        public bool Connected { get; private set; } = true;
+
+        public string IpAddress { get; }
         
+        public NetworkClient() { }
+
         public NetworkClient(Socket socket)
         {
             _socket = socket;
             _pipe = new DuplexPipe(_socket);
+
+            // Get IP Address
+            IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+            if (endPoint != null)
+                IpAddress = endPoint.Address.ToString();
         }
 
-        public NetworkClient(string ip, int port)
+        public async Task ConnectAsync(string ip, int port)
         {
-            throw new NotImplementedException();
+            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                await _socket.ConnectAsync(ip, port);
+                _pipe = new DuplexPipe(_socket);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError("Failed to connect: {0}", ex);
+            }
+            await ProcessAsync();
         }
 
         public async Task ProcessAsync()
@@ -53,7 +73,7 @@ namespace L2Lattice.L2Core.Network
         {
             try
             {
-                while (_connected)
+                while (Connected)
                 {
                     ReadResult result = await reader.ReadAsync();
 
@@ -81,7 +101,7 @@ namespace L2Lattice.L2Core.Network
                         // Extract data
                         var data = buffer.Slice(position, dataLength);
                         byte[] raw = data.ToArray();
-                        HandlePacket(raw);
+                        await HandlePacket(raw);
 
                         // Update position
                         position += dataLength;
@@ -108,9 +128,16 @@ namespace L2Lattice.L2Core.Network
             await _pipe.Output.FlushAsync();
         }
 
+        protected async Task SendPacketAsync(byte[] header, byte[] raw, int offset, int size)
+        {
+            await _pipe.Output.WriteAsync(new ReadOnlyMemory<byte>(header));
+            await _pipe.Output.WriteAsync(new ReadOnlyMemory<byte>(raw, offset, size));
+            await _pipe.Output.FlushAsync();
+        }
+
         public void Disconnect()
         {
-            _connected = false;
+            Connected = false;
         }
 
         public void Dispose()
@@ -119,7 +146,7 @@ namespace L2Lattice.L2Core.Network
         }
 
         /* Abstract functions */
-        protected abstract void HandlePacket(byte[] raw);
+        protected abstract Task HandlePacket(byte[] raw);
         protected abstract void Initialize();
 
     }

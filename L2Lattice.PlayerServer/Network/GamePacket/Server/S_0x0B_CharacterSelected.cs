@@ -8,7 +8,7 @@ using System.Text;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Server
 {
-    internal class S_0x0B_CharacterSelected : SendablePacketBase<GameClient>
+    internal class S_0x0B_CharacterSelected : SendablePacket<GameClient>
     {
         public const byte Opcode = 0x0B;
 
