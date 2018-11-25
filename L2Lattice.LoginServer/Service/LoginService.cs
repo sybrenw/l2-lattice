@@ -16,13 +16,26 @@ namespace L2Lattice.LoginServer.Service
 {
     internal class LoginService
     {
+        private static LoginService _instance;
+
+        public static LoginService Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new LoginService();
+
+                return _instance;
+            }
+        }
 
         private readonly Random Rnd = new Random(new DateTime().Millisecond);
 
         private SimpleIdFactory _idFactory;
 
-
-        public LoginService()
+        private ConcurrentDictionary<int, Session> _sessions = new ConcurrentDictionary<int, Session>();
+               
+        private LoginService()
         {
             _idFactory = new SimpleIdFactory();
 
@@ -37,21 +50,23 @@ namespace L2Lattice.LoginServer.Service
         {
             Session session = new Session(_idFactory.Create())
             {
-                LoginAuthKey = Rnd.Next()
+                LoginAuthKey = Rnd.Next(),
+                GameAuthKey = Rnd.Next()
             };
             return session;
         }
-
-        public async Task<int> Login(string username, string password, string ipAddress)
+        
+        public async Task<int> Login(LoginClient client, string username, string password)
         {
-            Account account= null;
+            Account account = null;
+
             using (var db = new LoginContext())
             {
                 try
                 {
                     account = await db.GetAccount(username);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
 
                 }
@@ -59,10 +74,9 @@ namespace L2Lattice.LoginServer.Service
                 if (account == null)
                 {
                     account = CreateAccount(username, password);
-                    account.LastIp = ipAddress;
+                    account.LastIp = client.IpAddress;
                     await db.AddAsync(account);
-                    await db.SaveChangesAsync();
-                    return account.Id;
+                    await db.SaveChangesAsync();          
                 }
                 else if (account.AccessLevel < 0)
                 {
@@ -74,16 +88,31 @@ namespace L2Lattice.LoginServer.Service
 
                     if (account.Password == hashed)
                     {
-                        account.LastIp = ipAddress;                        
+                        account.LastIp = client.IpAddress;
                         await db.SaveChangesAsync();
-                        return account.Id;
                     }
                 }
+            }
+
+            if (account != null && _sessions.TryAdd(account.Id, client.Session))
+            {
+                return account.Id;
             }
 
             return (int)LoginResult.LoginFail;
         }
 
+        public bool VerifySession(int accountId, int loginAuthKey, int gameAuthKey)
+        {
+            if (_sessions.TryRemove(accountId, out Session session))
+            {                
+                return session.LoginAuthKey == loginAuthKey && session.GameAuthKey == gameAuthKey;
+            }
+
+            return false;
+        }
+
+        #region Helperfunctions
         private static Account CreateAccount(string username, string password)
         {
             Account account = new Account() { Username = username };
@@ -118,6 +147,7 @@ namespace L2Lattice.LoginServer.Service
             }
             return Convert.ToBase64String(bytes);
         }
+        #endregion Helperfunctions
 
     }
 }

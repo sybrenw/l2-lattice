@@ -1,0 +1,26 @@
+﻿syntax = "proto3";
+package login;
+option csharp_namespace = "L2Lattice.Protobuf.Login";
+
+message RegisterServer {
+	int32 id = 1;
+	string name = 2; 
+	string key = 3;
+}
+
+message RegisterResponse{
+	int32 id = 1;
+	int32 result = 2;
+}
+
+message PlayerAuthRequest {
+	int32 server = 1;
+	int32 accountId = 2;
+	int32 loginAuthKey = 3;	
+	int32 gameAuthKey = 4;
+}
+
+message PlayerAuthResponse {
+	int32 accountId = 1;
+	int32 result = 2;
+}

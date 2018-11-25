@@ -29,9 +29,9 @@ namespace L2Lattice.PlayerServer.Network
             _crypt = new GameCrypt(GameCrypt.GenerateKey());
         }
 
-        protected override void Initialize()
+        protected override Task Initialize()
         {
-
+            return Task.CompletedTask;
         }
 
         protected override async Task HandlePacket(byte[] raw)

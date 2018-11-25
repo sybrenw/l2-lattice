@@ -11,17 +11,15 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Server
         public static byte Opcode { get; } = 0x07;
 
         private byte _server;
-        private int _gameServerSessionId;
 
-        public S_0x07_PlayOk(byte server, int gameServerSessionId) : base(Opcode)
+        public S_0x07_PlayOk(byte server) : base(Opcode)
         {
             _server = server;
-            _gameServerSessionId = gameServerSessionId;
         }
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write(_gameServerSessionId);
+            writer.Write(Client.Session.GameAuthKey);
             writer.Write(Client.Session.AccountId);
             writer.Write(_server);
             writer.Write(new byte[2]);

@@ -1,10 +1,12 @@
 ﻿using L2Lattice.L2Core.Network;
 using L2Lattice.L2Core.Network.Packet;
 using L2Lattice.PlayerServer.Network.GamePacket.Server;
+using L2Lattice.PlayerServer.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 {
@@ -17,17 +19,22 @@ namespace L2Lattice.PlayerServer.Network.GamePacket.Client
 
         }
 
-        protected override void Read(BinaryReader reader)
+        protected override async Task ReadAsync(BinaryReader reader)
         {
             string accountName = ReadString(reader);
             int accountId = reader.ReadInt32();
-            int sessionId = reader.ReadInt32();
+            int gameAuthKey = reader.ReadInt32();
             int accountId2 = reader.ReadInt32();
-            int authKey = reader.ReadInt32();
-                        
+            int loginAuthKey = reader.ReadInt32();
+
             Client.AccountId = accountId;
-            Client.SendPacket(new S_0x0A_LoginResult());
-            Client.SendPacket(new S_0x09_CharacterSelectionInfo());
+
+            if (await LoginService.Instance.GetPlayerAuthedAsync(accountId, loginAuthKey, gameAuthKey))
+            {
+                Client.SendPacket(new S_0x0A_LoginResult());
+                Client.SendPacket(new S_0x09_CharacterSelectionInfo());
+            }
+
         }
 
         /* // Opcode

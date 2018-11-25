@@ -8,6 +8,8 @@ namespace L2Lattice.LoginServer.Network
     public class Session
     {
         public int Id { get; }
+        public LoginState State { get; set; } = LoginState.Connected;
+
         public int AccountId { get; set; }
         public int LoginAuthKey { get; set; }
         public int GameAuthKey { get; set; }

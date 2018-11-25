@@ -1,4 +1,6 @@
 ﻿using L2Lattice.L2Core.Network.Packet;
+using L2Lattice.LoginServer.Model;
+using L2Lattice.LoginServer.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,10 +20,12 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Server
 
         public override void Write(BinaryWriter writer)
         {
-            writer.Write((byte)_servers.Count);
+            List<ServerInfo> servers = ServerService.Instance.GetServerList();
+
+            writer.Write((byte)servers.Count);
             writer.Write((byte)1);
 
-            foreach (ServerDummy server in _servers)
+            foreach (ServerInfo server in servers)
             {
                 var ip = IPAddress.Parse(server.Ip);
                 writer.Write(server.Id);
@@ -41,26 +45,6 @@ namespace L2Lattice.LoginServer.Network.LoginPacket.Server
             writer.Write((byte)0x04);
             writer.Write((byte)0x15);
             writer.Write(new byte[161]);
-        }
-
-        private static List<ServerDummy> _servers = new List<ServerDummy>()
-        {
-            new ServerDummy() { Id = 1, Ip = "127.0.0.1", Port = 7777, AgeLimit = 0, PvP = 0x01, CurrentPlayers = 0, MaxPlayers = 9999, Status = 0x01, ServerType = 0x00, Brackets = 0x00 }
-        };
-
-
-        private class ServerDummy
-        {
-            public byte Id { get; set; }
-            public string Ip { get; set; }
-            public int Port { get; set; }
-            public byte AgeLimit { get; set; }
-            public byte PvP { get; set; }
-            public short CurrentPlayers { get; set; }
-            public short MaxPlayers { get; set; }
-            public byte Status { get; set; }
-            public int ServerType { get; set; }
-            public byte Brackets { get; set; }
         }
     }
 }

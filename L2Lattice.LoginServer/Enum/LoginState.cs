@@ -4,14 +4,10 @@ using System.Text;
 
 namespace L2Lattice.LoginServer.Enum
 {
-    internal enum LoginState
+    public enum LoginState
     {
         Connected,
         Authed,
-        LoginOk,
-        LoginFail,
-        Banned,
-        PlayOk,
-        PlayFail
+        PlayOk
     }
 }

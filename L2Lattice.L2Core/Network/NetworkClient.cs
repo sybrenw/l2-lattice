@@ -49,14 +49,19 @@ namespace L2Lattice.L2Core.Network
         public async Task ConnectAsync(string ip, int port)
         {
             _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            try
+            while (Connected)
             {
-                await _socket.ConnectAsync(ip, port);
-                _pipe = new DuplexPipe(_socket);
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError("Failed to connect: {0}", ex);
+                try
+                {
+                    await _socket.ConnectAsync(ip, port);
+                    _pipe = new DuplexPipe(_socket);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to connect: {0}", ex);
+                    await Task.Delay(5000);
+                }
             }
             await ProcessAsync();
         }
@@ -65,8 +70,8 @@ namespace L2Lattice.L2Core.Network
         {
             Task process = _pipe.ProcessAsync();
             Task reading = ReadAsync(_pipe.Input);
-            Initialize();
-            await Task.WhenAll(process, reading);
+            Task init = Initialize();
+            await Task.WhenAll(process, reading, init);
         }
         
         private async Task ReadAsync(PipeReader reader)
@@ -147,7 +152,7 @@ namespace L2Lattice.L2Core.Network
 
         /* Abstract functions */
         protected abstract Task HandlePacket(byte[] raw);
-        protected abstract void Initialize();
+        protected abstract Task Initialize();
 
     }
 }

@@ -16,6 +16,9 @@ namespace L2Lattice.LoginServer
         public static Network.LoginListener LoginListener { get; private set; }
         public static Network.PlayerServerListener ServerListener { get; private set; }
 
+        public static LoginService LoginService { get; set; }
+        public static ServerService ServerService { get; set; }
+
         internal static void Main(string[] args)
         {
             Start();
@@ -26,6 +29,10 @@ namespace L2Lattice.LoginServer
             // Set up logging
             Logging.LoggerFactory.AddConsole(LogLevel.Debug, true);
             //Logging.LoggerFactory.AddCustomConsole(LogLevel.Debug, true);
+
+            // Login service
+            LoginService = LoginService.Instance;
+            ServerService = ServerService.Instance;
 
             // Listen for player servers
             Logger.LogInformation("Listening for player servers on port 2107");

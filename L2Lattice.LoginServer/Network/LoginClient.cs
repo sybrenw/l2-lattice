@@ -29,25 +29,21 @@ namespace L2Lattice.LoginServer.Network
         public L2KeyPair RSAKeyPair { get; }
 
         /* Private members */
-        private LoginService _loginService;
         private LoginCrypt _crypt;
 
-        internal LoginClient(Socket socket, LoginService loginService) : base(socket)
+        internal LoginClient(Socket socket) : base(socket)
         {
-            _loginService = loginService;
-
             // Create session
-            Session = _loginService.CreateSession();
+            Session = LoginService.Instance.CreateSession();
 
             // Setup encryption
             _crypt = new LoginCrypt(LoginCrypt.GenerateKey());
             RSAKeyPair = new L2KeyPair();
         }        
 
-        protected override void Initialize()
+        protected override async Task Initialize()
         {
-            Task sending = SendPacket(new S_0x00_SetEncryption());
-            Task.WaitAll(sending);
+            await SendPacket(new S_0x00_SetEncryption());
         }
 
         protected override async Task HandlePacket(byte[] raw)
@@ -99,25 +95,6 @@ namespace L2Lattice.LoginServer.Network
             }
 
             return null;
-        }
-
-        public async Task TryLogin(string user, string password)
-        {
-            int accountId = await _loginService.Login(user, password, IpAddress);
-            
-            if (accountId > 0)
-            {
-                Session.AccountId = accountId;
-                await SendPacket(new S_0x03_LoginOk());
-            }
-            else if (accountId == (int)LoginResult.Banned)
-            {
-                await SendPacket(new S_0x02_AccountBanned(0x20));
-            }
-            else 
-            {
-                await SendPacket(new S_0x01_LoginFail());
-            }
         }
     }
 }
