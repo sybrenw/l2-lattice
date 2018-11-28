@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L2Lattice.LoginServer", "L2Lattice.LoginServer\L2Lattice.LoginServer.csproj", "{1AC82E5F-DABC-4753-AB31-E5A4C98EBA93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lattice.L2LoginServer", "Lattice.L2LoginServer\Lattice.L2LoginServer.csproj", "{1AC82E5F-DABC-4753-AB31-E5A4C98EBA93}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L2Lattice.L2Core", "L2Lattice.L2Core\L2Lattice.L2Core.csproj", "{5F6EA34A-6206-466C-BD10-97A4EA0177AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lattice.L2Core", "Lattice.L2Core\Lattice.L2Core.csproj", "{5F6EA34A-6206-466C-BD10-97A4EA0177AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "L2Lattice.PlayerServer", "L2Lattice.PlayerServer\L2Lattice.PlayerServer.csproj", "{5284371D-F35F-45F3-A93B-D0BED39169CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lattice.L2PlayerServer", "Lattice.L2PlayerServer\Lattice.L2PlayerServer.csproj", "{5284371D-F35F-45F3-A93B-D0BED39169CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "L2Lattice.Common", "L2Lattice.Common\L2Lattice.Common.csproj", "{1CC2E2B7-2B7B-43A6-9571-168CD954CAC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lattice.Common", "Lattice.Common\Lattice.Common.csproj", "{1CC2E2B7-2B7B-43A6-9571-168CD954CAC7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lattice.Core", "Lattice.Core\Lattice.Core.csproj", "{9B111D91-16F7-46AB-A0B3-1FB5EB8A7C87}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lattice.L2Common", "Lattice.L2Common\Lattice.L2Common.csproj", "{F1072080-E196-4458-9562-F43AA29630ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{1CC2E2B7-2B7B-43A6-9571-168CD954CAC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CC2E2B7-2B7B-43A6-9571-168CD954CAC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CC2E2B7-2B7B-43A6-9571-168CD954CAC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B111D91-16F7-46AB-A0B3-1FB5EB8A7C87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B111D91-16F7-46AB-A0B3-1FB5EB8A7C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B111D91-16F7-46AB-A0B3-1FB5EB8A7C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B111D91-16F7-46AB-A0B3-1FB5EB8A7C87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1072080-E196-4458-9562-F43AA29630ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1072080-E196-4458-9562-F43AA29630ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1072080-E196-4458-9562-F43AA29630ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1072080-E196-4458-9562-F43AA29630ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  l2lattice.loginserver:
+    image: ${DOCKER_REGISTRY-}l2latticeloginserver
+    build:
+      context: .
+      dockerfile: L2Lattice.LoginServer/Dockerfile
