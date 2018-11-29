@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lattice.Core\Lattice.Core.csproj" />
+    <ProjectReference Include="..\Lattice.L2Common\Lattice.L2Common.csproj" />
   </ItemGroup>
 
 </Project>

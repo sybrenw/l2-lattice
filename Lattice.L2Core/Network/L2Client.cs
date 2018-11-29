@@ -52,8 +52,11 @@ namespace Lattice.L2Core.Network
 
         public async Task SendPacketAsync(byte[] raw, int rawLength)
         {
+            byte[] raw2 = new byte[rawLength];
+            Array.Copy(raw, raw2, rawLength);
+
             // Encrypt data block
-            rawLength = Encrypt(raw, 0, rawLength);
+            rawLength = Encrypt(raw2, 0, rawLength);
 
             // Create header
             byte[] header = BitConverter.GetBytes((short)(rawLength + 2));
@@ -61,7 +64,7 @@ namespace Lattice.L2Core.Network
             // Send packet
             try
             {
-                await SendPacketAsync(header, raw, 0, rawLength);
+                await SendPacketAsync(header, raw2, 0, rawLength);
             }
             catch (Exception ex)
             {

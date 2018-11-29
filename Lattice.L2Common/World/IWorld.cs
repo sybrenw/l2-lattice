@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Lattice.L2Common.World
 {
-    class IWorld
+    interface IWorld
     {
     }
 }

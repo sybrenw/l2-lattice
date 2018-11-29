@@ -19,8 +19,24 @@ namespace Lattice.L2PlayerServer
 
         public static int ServerId = 1;
 
+        public static string LoginIp = "127.0.0.1";
+
         internal static void Main(string[] args)
         {
+            foreach(string arg in args)
+            {
+                if (arg.StartsWith("--login"))
+                {
+                    string[] parts = arg.Split("=");
+                    if (parts.Length > 1)
+                    {
+                        Logger.LogInformation("Connecting to loginserver with ip {0}", parts[1]);
+                        LoginIp = parts[1];
+                    }
+                }
+            }             
+
+
             Start();
         }
 
@@ -33,12 +49,12 @@ namespace Lattice.L2PlayerServer
             PlayerService = CharacterService.Instance;
 
             // Connect to loginserver
-            Task login = LoginService.Instance.ConnectAsync("127.0.0.1", 2110);
+            Task login = LoginService.Instance.ConnectAsync(LoginIp, 2110);
 
             // start network server
             Logger.LogInformation("Starting network");
             GameServer = new Network.GameServer();
-            Task listen = GameServer.ListenAsync("127.0.0.1", 7777);
+            Task listen = GameServer.ListenAsync("*", 7777);
             
             // Wait till all tasks finished
             Task.WaitAll(login, listen);

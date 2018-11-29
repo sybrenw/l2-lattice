@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Lattice.L2Common.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace Lattice.L2Core.Network.Packet
 {
-    public interface ISendablePacket
+    public interface ISendablePacket : ISendableMessage
     {
         int Write(L2Client client, out byte[] buffer);
     }

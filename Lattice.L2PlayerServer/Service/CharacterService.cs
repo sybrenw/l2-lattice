@@ -38,8 +38,17 @@ namespace Lattice.L2PlayerServer.Service
         {
             using (var db = new CharacterContext())
             {
-                return db.FindCharactersByAccountId(accountId);
+                try
+                {
+                    return db.FindCharactersByAccountId(accountId);
+                }
+                catch(Exception ex)
+                {
+
+                }
             }
+
+            return null;
         }
 
         public void CreateCharacter(Character character)

@@ -27,7 +27,12 @@ namespace Lattice.Core.Network
         
         public async Task ListenAsync(string ip, int port)
         {
-            IPAddress ipAddress = IPAddress.Parse(ip);
+            IPAddress ipAddress;
+            if (ip == "*")
+                ipAddress = IPAddress.Any;
+            else
+                ipAddress = IPAddress.Parse(ip);
+
             await ListenAsync(ipAddress, port);
         }
 

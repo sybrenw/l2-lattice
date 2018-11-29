@@ -11,6 +11,7 @@ namespace Lattice.L2Common.Model
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
+        [NotMapped]
         public int ObjectId { get; set; }
 
         // Position in 3D space
@@ -29,10 +30,10 @@ namespace Lattice.L2Common.Model
         public float Z
         {
             get { return Position.Z; }
-            set { Position = new Vector3(Position.X, Position.Y, 0); }
+            set { Position = new Vector3(Position.X, Position.Y, value); }
         }
 
         [NotMapped]
-        public Vector3 Position { get; set; } = new System.Numerics.Vector3(147465, 13559, -1151);
+        public Vector3 Position { get; set; } = new Vector3(147465, 13559, -1151);
     }
 }

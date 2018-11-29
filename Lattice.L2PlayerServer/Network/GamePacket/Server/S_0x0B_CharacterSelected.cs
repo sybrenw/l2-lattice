@@ -36,17 +36,37 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
             writer.Write((int)character.Race);
             // Class
             writer.Write((int)character.VisibleClassId);
-            // Server
+            // Selected
             writer.Write(1);
+            // Position
+            writer.Write((int)character.X);
+            writer.Write((int)character.Y);
+            writer.Write((int)character.Z);
+            // HP/MP
+            writer.Write(10000.0);
+            writer.Write(10000.0);
+            // SP/XP
+            writer.Write(0L);
+            writer.Write(0L);
+            // Level
+            writer.Write((int)character.Level);
+            // Reputation/PK count
+            writer.Write(0);
+            writer.Write(0);
+            // Game time
+            writer.Write(0);
+            writer.Write(0);
+            // Class
+            writer.Write(character.ActiveClassId);
+            // Gameguard
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write(new byte[64]);
 
-            string hexBytes = "854502006B91000030F2FFFF4408E4EC778C64403963DE366E154A400000000000000000000000000000000001000000000000000000000009080000000000007C000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-            byte[] bytes = new byte[hexBytes.Length / 2];
-
-            for (int i = 0; i < hexBytes.Length; i += 2)
-                bytes[i / 2] = Convert.ToByte(hexBytes.Substring(i, 2), 16);
-
-            // Unknown (lazy syb)
-            writer.Write(bytes);
+            // Opcode shuffling seed
+            writer.Write(0);
 
         }
     }

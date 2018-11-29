@@ -37,12 +37,12 @@ namespace Lattice.LoginServer
             // Listen for player servers
             Logger.LogInformation("Listening for player servers on port 2110");
             ServerListener = new Network.PlayerServerListener();
-            Task listen1 = ServerListener.ListenAsync("127.0.0.1", 2110);
+            Task listen1 = ServerListener.ListenAsync("*", 2110);
 
             // Finally start network server
             Logger.LogInformation("Listening for clients on port 2106");
             LoginListener = new Network.LoginListener();
-            Task listen2 = LoginListener.ListenAsync("127.0.0.1", 2107);
+            Task listen2 = LoginListener.ListenAsync("*", 2106);
 
             // Wait for tasks to finish before shutting down
             Task.WaitAll(listen1, listen2);

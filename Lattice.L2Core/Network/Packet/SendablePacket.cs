@@ -7,6 +7,9 @@ namespace Lattice.L2Core.Network.Packet
 {
     public abstract class SendablePacket<T> : ISendablePacket<T> where T : L2Client
     {
+        public byte[] Bytes { get; set; }
+        public int Size { get; set; }
+
         public T Client { get; private set; }
 
         private byte[] _opcodes;
@@ -36,7 +39,17 @@ namespace Lattice.L2Core.Network.Packet
                 buffer = stream.ToArray();
             }
 
+            // TODO: Optimize and make prettier
+            Bytes = buffer;
+            Size = length;
+
             return length;
+        }
+
+        public ISendablePacket WriteSilent()
+        {
+            Write(null, out byte[] buffer);
+            return this;
         }
 
         int ISendablePacket.Write(L2Client client, out byte[] buffer)

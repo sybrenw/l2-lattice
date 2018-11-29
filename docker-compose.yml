@@ -1,8 +1,21 @@
 version: '3.4'
 
 services:
-  l2lattice.loginserver:
-    image: ${DOCKER_REGISTRY-}l2latticeloginserver
+  lattice.l2loginserver:
+    image: ${DOCKER_REGISTRY-}latticel2loginserver
     build:
       context: .
-      dockerfile: L2Lattice.LoginServer/Dockerfile
+      dockerfile: Lattice.L2LoginServer/Dockerfile
+    ports:
+      - "2106:2106"
+      - "2110:2110"
+
+  lattice.l2playerserver:
+    image: ${DOCKER_REGISTRY-}latticel2playerserver
+    build:
+      context: .
+      dockerfile: Lattice.L2PlayerServer/Dockerfile
+    ports:
+     - "7777:7777"
+     links:
+      - lattice.l2loginserver

@@ -1,4 +1,5 @@
-﻿using Lattice.L2Common.Model;
+﻿using Lattice.L2Common.Interfaces;
+using Lattice.L2Common.Model;
 using Lattice.L2Core;
 using Lattice.L2Core.Network;
 using Lattice.L2Core.Network.Packet;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Lattice.L2PlayerServer.Network
 {
-    public class GameClient : L2Client
+    public class GameClient : L2Client, IController
     {
         private static ILogger Logger { get; } = Logging.CreateLogger<GameClient>();
 
@@ -24,19 +25,12 @@ namespace Lattice.L2PlayerServer.Network
 
         public int AccountId { get; set; }
 
-        public Character Character
-        {
-            get { return Player.Character; }
-            set { Player.Character = value; }
-        }
-        public Player Player { get; }
+        public Character Character { get; set; }
 
         private GameCrypt _crypt;
 
         public GameClient(Socket socket) : base(socket)
         {
-            Player = new Player() { Client = this };
-            L2World.Instance.InsertPlayer(Player);
             _crypt = new GameCrypt(GameCrypt.GenerateKey());
             Character = null;
         }
@@ -66,7 +60,14 @@ namespace Lattice.L2PlayerServer.Network
             if (packet != null)
             {
                 Logger.LogDebug("Received packet {0}", packet.GetType().Name);
-                await packet.ReadAsync(this, raw);
+                try
+                {
+                    await packet.ReadAsync(this, raw);
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError("Failed to read packet {0}", ex);
+                }
             }
             else
             {
@@ -151,7 +152,12 @@ namespace Lattice.L2PlayerServer.Network
         {
             byte[] buffer;
             int length = packet.Write(this, out buffer);
-            L2World.Instance.Broadcast(buffer, length, Character.Position, 10000);
+            Character.Broadcast(packet);
+        }
+
+        public void Receive(ISendableMessage message)
+        {
+            SendPacketAsync(message.Bytes, message.Size);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Lattice.L2Common.Model;
+using Lattice.L2Common.Model.Stats;
 using Lattice.L2Core.Network;
 using Lattice.L2Core.Network.Packet;
 using System;
@@ -21,6 +22,8 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
 
         public override void Write(BinaryWriter writer)
         {
+            CharStats stats = _character.Stats;
+
             // Unknown
             writer.Write((byte)0x00);
             // Position
@@ -75,16 +78,16 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
             writer.Write(1000);
             writer.Write(1000);
             // Walking speed
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write((short)100);
-            writer.Write(1.25);
-            writer.Write(2.42);
+            writer.Write((short)stats[StatType.RunSpeedSlow]);
+            writer.Write((short)stats[StatType.RunSpeed]);
+            writer.Write((short)stats[StatType.SwimSpeedSlow]);
+            writer.Write((short)stats[StatType.SwimSpeed]);
+            writer.Write((short)stats[StatType.MountSpeedSlow]);
+            writer.Write((short)stats[StatType.MountSpeed]);
+            writer.Write((short)stats[StatType.FlySpeedSlow]);
+            writer.Write((short)stats[StatType.FlySpeed]);
+            writer.Write(stats.RunSpeedMultiplier);
+            writer.Write(stats.AttackSpeedMultiplier);
             // Collision radius
             writer.Write(6.5);
             writer.Write(19.5);

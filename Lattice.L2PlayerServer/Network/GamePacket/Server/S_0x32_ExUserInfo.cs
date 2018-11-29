@@ -1,4 +1,5 @@
 ﻿using Lattice.L2Common.Model;
+using Lattice.L2Common.Model.Stats;
 using Lattice.L2Core.Network;
 using Lattice.L2Core.Network.Packet;
 using Lattice.L2PlayerServer.Model;
@@ -21,9 +22,10 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
         public override void Write(BinaryWriter writer)
         {
             Character character = Client.Character;
+            CharStats stats = character.Stats;
 
             // Object id
-            writer.Write(1);
+            writer.Write(character.ObjectId);
             // Dynamic content size
             long lengthPos = writer.BaseStream.Position;
             writer.Write(0);
@@ -51,26 +53,26 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
 
             // Bit 0.5 - Base stats
             writer.Write((short)18);
-            writer.Write((short)80);
-            writer.Write((short)80);
-            writer.Write((short)80);
-            writer.Write((short)80);
-            writer.Write((short)80);
-            writer.Write((short)80);
-            writer.Write((short)80);
-            writer.Write((short)80);
+            writer.Write(stats[BaseStatType.STR]);
+            writer.Write(stats[BaseStatType.DEX]);
+            writer.Write(stats[BaseStatType.CON]);
+            writer.Write(stats[BaseStatType.INT]);
+            writer.Write(stats[BaseStatType.WIT]);
+            writer.Write(stats[BaseStatType.MEN]);
+            writer.Write(stats[BaseStatType.LUC]);
+            writer.Write(stats[BaseStatType.CHA]);
 
             // Bit 0.4 - Max HP/MP/CP
             writer.Write((short)14);
-            writer.Write(100000);
-            writer.Write(100000);
-            writer.Write(100000);
+            writer.Write(stats[StatType.MaxHP]);
+            writer.Write(stats[StatType.MaxMP]);
+            writer.Write(stats[StatType.MaxCP]);
 
             // Bit 0.3 - Current HP/MP/CP - SP / XP / Progress
             writer.Write((short)38);
-            writer.Write(100000);
-            writer.Write(100000);
-            writer.Write(100000);
+            writer.Write(stats.HP);
+            writer.Write(stats.MP);
+            writer.Write(stats.CP);
             writer.Write(0L);
             writer.Write(0L);
             writer.Write(0.0);
@@ -97,28 +99,24 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
             // Bit 1.7 - Character stats
             writer.Write((short)56);
             writer.Write((short)40);
-            writer.Write(100000);
-            writer.Write(2000);
-            writer.Write(200000);
-            writer.Write(200);
-            writer.Write(200);
-            writer.Write(900);
-            writer.Write(100000);
-            writer.Write(3000);
-            writer.Write(2000);
-            writer.Write(200);
-            writer.Write(200000);
-            writer.Write(200);
-            writer.Write(500);
+            writer.Write(stats[StatType.PAtk]);
+            writer.Write(stats[StatType.PAtkSpeed]);
+            writer.Write(stats[StatType.PDef]);
+            writer.Write(stats[StatType.PEvasion]);
+            writer.Write(stats[StatType.PAccuracy]);
+            writer.Write(stats[StatType.PCritRate]);
+            writer.Write(stats[StatType.MAtk]);
+            writer.Write(stats[StatType.CastingSpeed]);
+            writer.Write(stats[StatType.MAtkSpeed]);
+            writer.Write(stats[StatType.MEvasion]);
+            writer.Write(stats[StatType.MDef]);
+            writer.Write(stats[StatType.MAccuracy]);
+            writer.Write(stats[StatType.MCritRate]);
 
             // Bit 1.6 - Elemental defence
             writer.Write((short)14);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
+            for (int i = 0; i < 6; i++)
+                writer.Write(stats.DefElements[i]);
 
             // Bit 1.5 - Location
             writer.Write((short)18);
@@ -129,19 +127,19 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
 
             // Bit 1.4 - Movement speeds
             writer.Write((short)18);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
-            writer.Write((short)1000);
+            writer.Write((short)stats[StatType.RunSpeedSlow]);
+            writer.Write((short)stats[StatType.RunSpeed]);
+            writer.Write((short)stats[StatType.SwimSpeedSlow]);
+            writer.Write((short)stats[StatType.SwimSpeed]);
+            writer.Write((short)stats[StatType.MountSpeedSlow]);
+            writer.Write((short)stats[StatType.MountSpeed]);
+            writer.Write((short)stats[StatType.FlySpeedSlow]);
+            writer.Write((short)stats[StatType.FlySpeed]);
 
             // Bit 1.3 - Animation speed
             writer.Write((short)18);
-            writer.Write(2.0);
-            writer.Write(2.0);
+            writer.Write(stats.RunSpeedMultiplier);
+            writer.Write(stats.AttackSpeedMultiplier);
 
             // Bit 1.2 - Collision radius/size
             writer.Write((short)18);
