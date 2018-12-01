@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Lattice.L2PlayerServer.Network.GamePacket.Client
 {
@@ -35,7 +37,11 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Client
             Client.Character.Stats.AttackSpeedMultiplier = 5.0;
             Client.Character.Controller = Client;
             Client.Character.ObjectId = (int) Client.Character.Id;
-            L2World.Instance.AddObject(Client.Character);
+
+            Task.Run(() => {
+                Thread.Sleep(10000);
+                L2World.Instance.AddObject(Client.Character);
+            });
 
             Client.SendPacketAsync(new S_0x0B_CharacterSelected());
             Client.SendPacketAsync(new S_0xFE_00EA_ExSubClassInfo());

@@ -1,6 +1,7 @@
 ﻿using Lattice.L2Core;
 using Lattice.L2Core.Log;
 using Lattice.L2PlayerServer.Service;
+using Lattice.L2PlayerServer.World;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace Lattice.L2PlayerServer
         public static Network.LoginServerConnection LoginClient { get; private set; }
 
         public static CharacterService PlayerService { get; set; }
+
+        public static L2World World { get; set; }
 
         public static int ServerId = 1;
 
@@ -44,9 +47,10 @@ namespace Lattice.L2PlayerServer
         {
             // Set up logging
             Logging.LoggerFactory.AddConsole(LogLevel.Debug, true);
-            
+
             // Services
             PlayerService = CharacterService.Instance;
+            World = L2World.Instance;
 
             // Connect to loginserver
             Task login = LoginService.Instance.ConnectAsync(LoginIp, 2110);

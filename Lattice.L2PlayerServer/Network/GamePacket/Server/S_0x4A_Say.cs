@@ -19,7 +19,10 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Server
 
         public S_0x4A_Say(int objectId, ChatType type, string sender, string message) : base(Opcode)
         {
-
+            _objectId = objectId;
+            _type = type;
+            _sender = sender;
+            _message = message;
         }
 
         public override void Write(BinaryWriter writer)

@@ -29,6 +29,7 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Client
 
             Client.SendPacketAsync(new S_0x40_UserAck()); 
             Client.SendPacketAsync(new S_0xFE_0060_ExBasicActionList());
+            Client.SendPacketAsync(new S_0xFE_0156_ExUserInfoEquipSlot()); 
         }
     }
 }

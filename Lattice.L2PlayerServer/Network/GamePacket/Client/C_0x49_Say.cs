@@ -29,7 +29,7 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Client
                 target = ReadString(reader);
 
             ChatService.Instance.Say(Client.Character, type, text, target);
-            Client.Broadcast(new S_0x4A_Say(Client.Character.ObjectId, type, Client.Character.Name, text));
+            Client.Broadcast(new S_0x4A_Say(Client.Character.ObjectId, type, Client.Character.Name, text).WriteSilent());
         }
         
 

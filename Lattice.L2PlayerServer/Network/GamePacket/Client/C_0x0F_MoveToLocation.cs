@@ -27,7 +27,7 @@ namespace Lattice.L2PlayerServer.Network.GamePacket.Client
             for (int i = 0; i < 3; i++)
                 pos[i] = reader.ReadInt32();
             int controller = reader.ReadInt32();
-
+            Client.Character.Position = new System.Numerics.Vector3(dest[0], dest[1], dest[2]);
             Client.Broadcast(new S_0x2F_MoveToLocation(Client.Character.ObjectId,dest,pos));
         }
     }
